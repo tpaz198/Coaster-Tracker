@@ -1,0 +1,17 @@
+{
+  "name": "Thomas XL-200's Coaster Credit Tracker",
+  "short_name": "Coaster Tracker",
+  "description": "Track and rate your roller coaster credits",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#24333e",
+  "theme_color": "#d946ef",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
