@@ -1,11 +1,10 @@
 {
   "name": "Thomas XL-200's Coaster Credit Tracker",
   "short_name": "Coaster Tracker",
-  "description": "Track your roller coaster credits with detailed stats and charts",
-  "start_url": "./index.html",
+  "start_url": ".",
   "display": "standalone",
-  "background_color": "#1a0a2e",
-  "theme_color": "#a855f7",
+  "background_color": "#1a1a2e",
+  "theme_color": "#6366f1",
   "icons": [
     {
       "src": "icon-192.png",

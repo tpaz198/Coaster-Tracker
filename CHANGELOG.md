@@ -1,6 +1,42 @@
 # Changelog
 
-## Version 3.7 (Current) - 2026-02-10
+## Version 3.8 (Current) - 2026-02-17
+
+### Bug Fix: User-Added Rides in Charts
+- Newly added rides now properly appear in both Comparison and Over Time charts
+- Added `registerUserRide()`, `unregisterUserRide()`, and `syncRideToYearData()` helpers to sync user rides across `coasterBase`/`yearData2026` data layers
+- Charts now refresh immediately after add/edit/delete operations
+- Fixed weighted ranking recalculation to avoid double-counting user rides
+
+### Over Time Filters Chart: Stagger for Overlapping Data Points
+- Data points sharing the same rating value are now vertically staggered so clusters are visible
+- ±0.02 offset for clusters of 2–3 rides, ±0.01 for clusters of 4+
+- Tooltips still display the true (unstaggered) value
+- No stagger applied to single data points at a given value
+
+### Rating Tooltip Precision
+- All charts displaying "Rating" now show values to two decimal places (was one)
+- Applies to Comparison chart, Over Time (Filters, Ride, and Averages views)
+
+### Over Time Filters Chart: Legend Color Picker
+- Clicking a legend swatch opens a 64-color selection palette (8×8 grid)
+- Selected color updates the dataset line, points, and legend swatch instantly
+- Color overrides persist across Top N toggle, filter changes, rating/ranking mode, and weighted ranking checkbox
+- Overrides are keyed by ride identity (coasterBase index), not display position
+- Picker auto-positions to stay within viewport; click-outside to dismiss
+- Legend swatches show hover effect (scale + border) to signal interactivity
+
+### Data Export / Import
+- New 📤 Export and 📥 Import buttons in the header
+- Export downloads a JSON file containing user-added rides, field overrides, and deleted rides
+- Import reads the JSON, shows a confirmation summary, writes to localStorage, and reloads
+- Enables syncing data changes across machines or browsers
+- Desktop layout: Export/Import stacked vertically, aligned with Credits/Avg boxes
+- Mobile layout: Export pinned left, Import pinned right, Year selector centered between them
+
+---
+
+## Version 3.7 - 2026-02-10
 
 ### Mobile Loading & Reliability
 - Deferred script execution to prevent blank page on mobile browsers (Chrome, Samsung Internet)

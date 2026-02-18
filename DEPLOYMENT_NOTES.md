@@ -7,7 +7,7 @@
 1. Create a new public repository on GitHub (e.g., `coaster-tracker`)
 2. Clone the repo locally or upload files via the GitHub web interface
 3. Ensure the following files are in the repo root:
-   - `index.html` — Main application (single-file app, ~630KB)
+   - `index.html` — Main application (single-file app, ~360KB)
    - `manifest.json` — PWA manifest for home screen install
    - `icon-192.png` — App icon (192×192)
    - `icon-512.png` — App icon (512×512)
@@ -23,6 +23,16 @@
 1. Replace `index.html` with the updated version
 2. Commit and push to `main`
 3. GitHub Pages will automatically redeploy (typically within 1-2 minutes)
+
+### Syncing Data Across Machines
+
+User data (added rides, edited ratings/rankings, deleted rides) is stored in `localStorage` and is local to each browser. To transfer data between machines:
+
+1. Click **📤 Export** in the header to download a JSON file
+2. Transfer the file to the target machine
+3. Click **📥 Import** and select the file — it will show a summary and overwrite local changes on confirmation
+
+Note: The export captures all user modifications against the base data. The base coaster data is embedded in `index.html` and is the same for all visitors.
 
 ### Adding to Home Screen (PWA)
 
@@ -48,7 +58,7 @@
 
 ### File Size Considerations
 
-The HTML file is ~630KB due to embedded coaster data arrays. On some mobile browsers (especially Samsung Internet), this can occasionally cause the page to open blank on first attempt. The app includes deferred script execution to mitigate this — a retry typically loads successfully.
+The HTML file is ~360KB due to embedded coaster data arrays. On some mobile browsers (especially Samsung Internet), this can occasionally cause the page to open blank on first attempt. The app includes deferred script execution to mitigate this — a retry typically loads successfully.
 
 ### Browser Compatibility
 
