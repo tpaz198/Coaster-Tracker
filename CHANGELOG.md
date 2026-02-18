@@ -1,12 +1,18 @@
 # Changelog
 
-## Version 3.8 (Current) - 2026-02-17
+## Version 3.8 (Current) - 2026-02-18
 
 ### Bug Fix: User-Added Rides in Charts
 - Newly added rides now properly appear in both Comparison and Over Time charts
 - Added `registerUserRide()`, `unregisterUserRide()`, and `syncRideToYearData()` helpers to sync user rides across `coasterBase`/`yearData2026` data layers
 - Charts now refresh immediately after add/edit/delete operations
 - Fixed weighted ranking recalculation to avoid double-counting user rides
+
+### Bug Fix: Overrides Not Reaching Over Time Charts
+- `Persistence.applyOverrides()` now syncs Rating, Ranking, and Comments to `yearData2026` entries (not just `AppState.coasters`)
+- Previously, edited ratings/rankings were correct in Credits and Table tabs but stale in Stats charts
+- Added `syncAllToYearData()` bulk sync to catch cascading ranking shifts after add/edit/delete operations
+- Rides that gained a rating or ranking via edit now appear in Over Time Filters charts immediately
 
 ### Over Time Filters Chart: Stagger for Overlapping Data Points
 - Data points sharing the same rating value are now vertically staggered so clusters are visible
@@ -33,6 +39,17 @@
 - Enables syncing data changes across machines or browsers
 - Desktop layout: Export/Import stacked vertically, aligned with Credits/Avg boxes
 - Mobile layout: Export pinned left, Import pinned right, Year selector centered between them
+
+### Modal UX Improvements
+- Background blur (4px) applied when any modal is open (detail card, add/edit form, comments)
+- Background scroll is locked while a modal is open; scroll position restored on close
+- Status badge text now centered within its colored pill on both mobile and desktop
+
+### Mobile UI Improvements
+- Export/Import buttons and Year selector scale down to 0.9rem with tighter padding on mobile
+- Tab buttons (Credits, Stats, Table) scale to 0.9rem on mobile (≤768px), smaller still on ≤480px
+- Title font now uses Comic Neue (Google Font) as fallback for Android devices lacking Comic Sans MS
+- Table tab: Refresh button moved below filter toggles to prevent column stacking on narrow screens
 
 ---
 
