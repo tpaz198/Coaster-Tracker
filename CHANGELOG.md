@@ -1,6 +1,44 @@
 # Changelog
 
-## Version 3.8 (Current) - 2026-02-18
+## Version 3.9 (Current) - 2026-02-19
+
+### Font Size Refinements (Desktop & Mobile)
+- Card exterior: title 23px, park 20px, ranking badge 20px, detail rows 17px, rating number 22px, status badge 13px
+- Detail modal: title 25px, labels 14px, values 15px, comments 16px
+- Credits tab: Add Credit/Filters buttons 15px, filter labels/selects 15px
+- Stats tab: toggle buttons ~14.6px, Top 5/10/15 buttons 15px, filter labels/selects 15px
+- All font sizes now explicitly declared in mobile media query to ensure propagation
+
+### Mobile Layout Spacing
+- Credits/Avg stat boxes reduced 20%: font 1rem, padding 0.6rem 0.4rem, border 2.4px, gap 0.6rem
+- `autoFitStatBoxes()` caps at 16px on mobile (down from 20px)
+- Header row gap increased to 1.5rem (matching spacing between stat boxes and tabs)
+
+### Stats Toggle Formatting
+- "Over Time" text no longer wraps: `white-space: nowrap` on `.chart-type-btn`
+- Toggle container widened from 17rem to 19rem for proper centering
+
+### Over Time Chart Export: Legend Centering
+- Legend items use `flexBasis: auto` and fixed 50px horizontal gap instead of percentage-based widths
+- Legend canvas centered without pixel offset
+- `justify-content: center` now works correctly during export capture
+
+### Over Time Export Filename Convention
+- Over Time chart exports now append `-over-time` before `.png` (e.g., `top-10-intamin-coasters-over-time.png`)
+- Comparison chart filenames unchanged
+
+### Bug Fix: Filters Not Updating After Delete
+- All filter dropdowns (Park, Manufacturer, Category, Type) across Credits, Stats Comparison, and Stats Over Time tabs now repopulate after deleting a coaster
+- Previously, deleted parks/manufacturers could remain in filter options
+
+### Bug Fix: Edits to Status/Type/Last Ride/Opening Year Not Persisting
+- Root cause: `applyToCoasterBase()` mutated `coasterBase` on load, so subsequent `save()` compared current values against already-mutated base and found no difference
+- Fix: `snapshotBase()` captures original base field values before any overrides are applied; `save()` compares against the snapshot instead of the mutated `coasterBase`
+- Affects all non-EDITABLE_FIELDS overrides: Status, Last Ride, Type, Opening Year
+
+---
+
+## Version 3.8 - 2026-02-18
 
 ### Bug Fix: User-Added Rides in Charts
 - Newly added rides now properly appear in both Comparison and Over Time charts
