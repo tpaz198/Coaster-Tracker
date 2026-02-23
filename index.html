@@ -6,6 +6,7 @@
     <meta name="theme-color" content="#a855f7" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#8b5cf6" media="(prefers-color-scheme: dark)">
     <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
     <title>Thomas XL-200's Coaster Credit Tracker</title>
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Racing+Sans+One&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -37,7 +38,7 @@ h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp
 .credit-count,.average-rating{min-width:0;flex:1;padding:0.6rem 0.4rem;display:flex;align-items:center;justify-content:center;font-size:1rem;border-width:2.4px;}
 }
 .tab-nav{display:flex;gap:0.25rem;margin-top:1.5rem;border-bottom:4px solid var(--primary);padding-bottom:0;overflow:visible;flex-wrap:nowrap;justify-content:flex-start;}
-.tab-btn{padding:0.6rem 1rem;border:none;border-top:3px solid var(--border);border-left:3px solid var(--border);border-right:3px solid var(--border);border-bottom:none;background:var(--bg-secondary);color:var(--text);font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:calc(0.8rem + 3px);cursor:pointer;transition:all 0.2s;text-transform:uppercase;letter-spacing:0.3px;border-radius:8px 8px 0 0;box-shadow:inset 2px 2px 4px rgba(0,0,0,0.1);position:relative;bottom:-4px;white-space:nowrap;flex:1;min-width:0;}
+.tab-btn{padding:0.6rem 1rem;border:none;border-top:3px solid var(--border);border-left:3px solid var(--border);border-right:3px solid var(--border);border-bottom:none;background:var(--bg-secondary);color:var(--text);font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;cursor:pointer;transition:all 0.2s;text-transform:uppercase;letter-spacing:0.3px;border-radius:8px 8px 0 0;box-shadow:inset 2px 2px 4px rgba(0,0,0,0.1);position:relative;bottom:-4px;white-space:nowrap;flex:1;min-width:0;}
 @media (max-width:768px){.tab-btn{padding:0.5rem 0.75rem;font-size:0.9rem;}
 }
 @media (max-width:480px){.tab-btn{padding:0.5rem 0.6rem;font-size:calc(0.7rem + 3px);}
@@ -148,6 +149,7 @@ body.modal-open{overflow:hidden;position:fixed;width:100%;}
 .coaster-table th:hover{background:rgba(255,255,255,0.15);}
 .coaster-table th.sorted-asc::after{content:' ▲';font-size:0.7em;color:var(--accent);}
 .coaster-table th.sorted-desc::after{content:' ▼';font-size:0.7em;color:var(--accent);}
+.coaster-table th[data-sort-priority]::before{content:attr(data-sort-priority);font-size:0.6em;vertical-align:super;color:var(--accent);margin-right:2px;font-weight:700;}
 .coaster-table tbody tr{border-bottom:1px solid var(--border);transition:all 0.15s ease;}
 .coaster-table tbody tr:nth-child(even){background:rgba(0,0,0,0.02);}
 @media (prefers-color-scheme:dark){.coaster-table tbody tr:nth-child(even){background:rgba(255,255,255,0.02);}
@@ -440,8 +442,8 @@ body.modal-open{overflow:hidden;position:fixed;width:100%;}
             <div id="overTimeView" style="display: none;">
                 <div class="ot-source-toggle">
                     <div class="chart-type-toggle">
-                        <button class="chart-type-btn active" data-ot-source="ride">Ride</button>
-                        <button class="chart-type-btn" data-ot-source="filters">Filters</button>
+                        <button class="chart-type-btn" data-ot-source="ride">Ride</button>
+                        <button class="chart-type-btn active" data-ot-source="filters">Filters</button>
                     </div>
                 </div>
                 <div class="ot-mode-toggle">
@@ -458,7 +460,7 @@ body.modal-open{overflow:hidden;position:fixed;width:100%;}
                 </div>
 
                 <!-- Ride-search panel (visible by default) -->
-                <div id="otRidePanel">
+                <div id="otRidePanel" style="display: none;">
                     <div class="ot-ride-search">
                         <div class="ot-search-input-wrap">
                             <input type="text" id="otRideSearch" class="ot-search-input" placeholder="Search for a ride…" autocomplete="off">
@@ -468,8 +470,8 @@ body.modal-open{overflow:hidden;position:fixed;width:100%;}
                     </div>
                 </div>
 
-                <!-- Filters panel (hidden by default) -->
-                <div id="otFiltersPanel" style="display: none;">
+                <!-- Filters panel (shown by default) -->
+                <div id="otFiltersPanel">
                     <div class="stats-filters">
                         <div class="filter-group">
                             <label for="otPark">Park</label>
@@ -711,7 +713,7 @@ const AppState = {
     editing: null,
     chart: null,
     chartLimit: 5,
-    sort: { column: null, direction: 'asc' },
+    sort: [],  // [{column, direction}, ...] up to 3
     columns: {
         'Ride': true,
         'Park': true,
@@ -763,6 +765,23 @@ const Utils = {
     truncateLabel(label, maxLength = 15) {
         if (!label || label.length <= maxLength) return label;
         return label.substring(0, maxLength) + '...';
+    },
+
+    wrapLabel(label, maxLength = 15) {
+        if (!label || label.length <= maxLength) return label;
+        const words = label.split(' ');
+        const lines = [];
+        let current = '';
+        for (const word of words) {
+            if (current && (current.length + 1 + word.length) > maxLength) {
+                lines.push(current);
+                current = word;
+            } else {
+                current = current ? current + ' ' + word : word;
+            }
+        }
+        if (current) lines.push(current);
+        return lines;
     },
 
     buildFilterTitle(limit, statusId, parkId, mfrId, catId, typeId, actualCount = null) {
@@ -953,8 +972,13 @@ const Render = {
             const th = document.createElement('th');
             th.textContent = column;
             th.dataset.column = column;
-            if (AppState.sort.column === column) {
-                th.classList.add(AppState.sort.direction === 'asc' ? 'sorted-asc' : 'sorted-desc');
+            const sortIdx = AppState.sort.findIndex(s => s.column === column);
+            if (sortIdx !== -1) {
+                const entry = AppState.sort[sortIdx];
+                th.classList.add(entry.direction === 'asc' ? 'sorted-asc' : 'sorted-desc');
+                if (AppState.sort.length > 1) {
+                    th.dataset.sortPriority = AppState.sort.length - sortIdx;
+                }
             }
             th.addEventListener('click', () => Spreadsheet.sortByColumn(column));
             headerRow.appendChild(th);
@@ -1039,30 +1063,51 @@ const Spreadsheet = {
     },
 
     sortByColumn(column) {
-        if (AppState.sort.column === column) {
-            AppState.sort.direction = AppState.sort.direction === 'asc' ? 'desc' : 'asc';
+        const existing = AppState.sort.findIndex(s => s.column === column);
+        if (existing !== -1) {
+            // Toggle direction if already in the sort stack
+            const entry = AppState.sort[existing];
+            entry.direction = entry.direction === 'asc' ? 'desc' : 'asc';
         } else {
-            AppState.sort.column = column;
-            AppState.sort.direction = 'asc';
+            // Add new sort; if at capacity (3), drop the oldest
+            if (AppState.sort.length >= 3) AppState.sort.shift();
+            AppState.sort.push({ column, direction: 'asc' });
         }
         Render.spreadsheet();
     },
 
     getSortedData() {
         const data = AppState.filtered || AppState.coasters;
-        if (!AppState.sort.column) return data;
+        if (!AppState.sort.length) return data;
+        
+        const numericCols = new Set(['Rating', 'Ranking', 'Weighted Ranking', 'Opening Year']);
+        const emptyLastCols = new Set(['Ranking', 'Weighted Ranking']);
+        const reversed = [...AppState.sort].reverse();  // newest (primary) first
         
         return [...data].sort((a, b) => {
-            let aVal = a[AppState.sort.column] || '';
-            let bVal = b[AppState.sort.column] || '';
-            
-            if (['Rating', 'Ranking', 'Weighted Ranking', 'Opening Year'].includes(AppState.sort.column)) {
-                aVal = parseFloat(aVal) || 0;
-                bVal = parseFloat(bVal) || 0;
+            for (const { column, direction } of reversed) {
+                let aVal = a[column] || '';
+                let bVal = b[column] || '';
+                
+                if (numericCols.has(column)) {
+                    const aNum = parseFloat(aVal);
+                    const bNum = parseFloat(bVal);
+                    const aEmpty = !aVal || isNaN(aNum) || aNum <= 0;
+                    const bEmpty = !bVal || isNaN(bNum) || bNum <= 0;
+                    
+                    if (emptyLastCols.has(column) && (aEmpty || bEmpty)) {
+                        if (aEmpty && !bEmpty) return 1;
+                        if (!aEmpty && bEmpty) return -1;
+                        continue;
+                    }
+                    
+                    aVal = aEmpty ? 0 : aNum;
+                    bVal = bEmpty ? 0 : bNum;
+                }
+                
+                if (aVal < bVal) return direction === 'asc' ? -1 : 1;
+                if (aVal > bVal) return direction === 'asc' ? 1 : -1;
             }
-            
-            if (aVal < bVal) return AppState.sort.direction === 'asc' ? -1 : 1;
-            if (aVal > bVal) return AppState.sort.direction === 'asc' ? 1 : -1;
             return 0;
         });
     }
@@ -1146,7 +1191,8 @@ const Chart = {
                 },
                 scales: {
                     y: {
-                        beginAtZero: true,
+                        beginAtZero: false,
+                        min: 1,
                         max: 10,
                         grid: {
                             color: borderColor
@@ -1240,7 +1286,7 @@ const Chart = {
         const isRanking = this.mode === 'ranking';
         const isWeighted = isRanking && this.useWeightedRanking;
         
-        const labels = chartData.map(c => Utils.truncateLabel(c.Ride, 15));
+        const labels = chartData.map(c => Utils.wrapLabel(c.Ride, 20));
         
         let dataValues, colors;
         if (isWeighted) {
@@ -1278,9 +1324,9 @@ const Chart = {
             }
         } else {
             this.instance.options.scales.y.reverse = false;
-            this.instance.options.scales.y.beginAtZero = true;
+            this.instance.options.scales.y.beginAtZero = false;
             this.instance.options.scales.y.max = 10;
-            delete this.instance.options.scales.y.min;
+            this.instance.options.scales.y.min = 1;
             delete this.instance.options.scales.y.ticks.stepSize;
             this.instance.options.scales.y.ticks.callback = function(value) { return Number(value.toFixed(2)); };
         }
@@ -1301,7 +1347,7 @@ const Chart = {
 const OverTimeChart = {
     instance: null,
     mode: 'rating',             // 'rating' | 'ranking'
-    sourceMode: 'ride',         // 'ride' | 'filters'
+    sourceMode: 'filters',         // 'ride' | 'filters'
     selectedRideIndex: null,    // coasterBase index when a ride is selected; null → averages
     useWeightedRanking: false,  // when true, show Weighted Ranking instead of Ranking
     otLimit: 5,                 // Top N used in filters mode
@@ -1380,8 +1426,8 @@ const OverTimeChart = {
                 },
                 scales: {
                     y: {
-                        beginAtZero: true,
-                        min: 0, max: 10, reverse: false,
+                        beginAtZero: false,
+                        min: 1, max: 10, reverse: false,
                         grid:  { color: borderColor },
                         afterBuildTicks: function(axis) {
                             if (axis.options.reverse && axis.ticks.length && !axis.ticks.some(t => t.value === 1)) {
@@ -1606,7 +1652,7 @@ const OverTimeChart = {
                 const allRatings  = this.instance.data.datasets.flatMap(ds => ds.data).filter(v => v !== null);
                 const minRating   = allRatings.length ? Math.min(...allRatings) : 0;
                 const maxRating   = allRatings.length ? Math.max(...allRatings) : 10;
-                applyYAxis('Rating', minRating - 0.2, maxRating + 0.2, false, false);
+                applyYAxis('Rating', Math.max(minRating - 0.2, 1), maxRating + 0.2, false, false);
             } else {
                 const axisLabel = this.useWeightedRanking ? 'Weighted Ranking' : 'Ranking';
                 const allRankings = this.instance.data.datasets.flatMap(ds => ds.data).filter(v => v !== null);
@@ -1683,7 +1729,7 @@ const OverTimeChart = {
                 const allRatings  = this.instance.data.datasets.flatMap(ds => ds.data).filter(v => v !== null);
                 const minRating   = allRatings.length ? Math.min(...allRatings) : 0;
                 const maxRating   = allRatings.length ? Math.max(...allRatings) : 10;
-                applyYAxis('Rating', minRating - 0.2, maxRating + 0.2, false, false);
+                applyYAxis('Rating', Math.max(minRating - 0.2, 1), maxRating + 0.2, false, false);
             } else {
                 const axisLabel = this.useWeightedRanking ? 'Weighted Ranking' : 'Ranking';
                 const allRankings = this.instance.data.datasets.flatMap(ds => ds.data).filter(v => v !== null);
@@ -1995,7 +2041,11 @@ const Filters = {
         
         ranked.sort((a, b) => parseInt(a.Ranking) - parseInt(b.Ranking));
         
-        unranked.sort((a, b) => Utils.parseRating(b.Rating) - Utils.parseRating(a.Rating));
+        unranked.sort((a, b) => {
+            const ratingDiff = Utils.parseRating(b.Rating) - Utils.parseRating(a.Rating);
+            if (ratingDiff !== 0) return ratingDiff;
+            return (a.Ride || '').localeCompare(b.Ride || '');
+        });
         
         AppState.filtered = [...ranked, ...unranked];
     },
@@ -2016,7 +2066,14 @@ const Tabs = {
         Utils.getElement('spreadsheetTab').classList.toggle('hidden', tabName !== 'spreadsheet');
         
         if (tabName === 'statistics') {
-            Chart.update();
+            if (Chart.instance) {
+                Chart.instance.resize();
+                Chart.update();
+            }
+            if (OverTimeChart.instance) {
+                OverTimeChart.instance.resize();
+                OverTimeChart.update();
+            }
         } else if (tabName === 'spreadsheet') {
             Render.spreadsheet();
         }
@@ -2076,14 +2133,15 @@ const Forms = {
         Stats.updateAverageRating();
         Render.spreadsheet();
         YearData.refreshDropdowns();
-        Chart.update();
-        if (OverTimeChart.instance) OverTimeChart.update();
         
         if (YearData.currentYear === '2026') {
             Persistence.save();
             Persistence.applyToCoasterBase();
             YearData.recalculateWeightedRankings();
         }
+        
+        Chart.update();
+        if (OverTimeChart.instance) OverTimeChart.update();
     },
 
     adjustRankings(newRanking) {
@@ -2159,9 +2217,11 @@ const Persistence = {
     OVERRIDES_KEY: 'coasterOverrides2026',
     EDITABLE_FIELDS: ['Rating', 'Ranking', 'Comments'],
     _originalBase: {},
+    _originalYear: {},
 
     snapshotBase() {
         this._originalBase = {};
+        this._originalYear = {};
         yearData2026.forEach(e => {
             const base = coasterBase[e.m];
             if (base) {
@@ -2172,6 +2232,11 @@ const Persistence = {
                     'Opening Year': base['Opening Year']
                 };
             }
+            this._originalYear[e.m] = {
+                Rating: e.Rating,
+                Ranking: e.Ranking,
+                Comments: e.Comments
+            };
         });
     },
 
@@ -2190,7 +2255,8 @@ const Persistence = {
             if (!current) return;
             const changed = {};
             this.EDITABLE_FIELDS.forEach(field => {
-                if (current[field] !== e[field]) {
+                const orig = (this._originalYear[e.m] || {})[field];
+                if (current[field] !== orig) {
                     changed[field] = current[field];
                 }
             });
@@ -2714,7 +2780,7 @@ function simpleDownload(chartInstance, filename, isMobile, originalAspectRatio) 
     chartInstance.options.plugins.title.font.size = desktopFontSizes.title * 2;
     chartInstance.options.scales.y.title.font.size = desktopFontSizes.yTitle * 2;
     chartInstance.options.scales.y.ticks.font.size = desktopFontSizes.yTicks * 2;
-    chartInstance.options.scales.x.ticks.font.size = desktopFontSizes.xTicks * 2;
+    chartInstance.options.scales.x.ticks.font.size = (desktopFontSizes.xTicks - 2) * 2;
     
     chartInstance.options.devicePixelRatio = 4;
     chartInstance.options.aspectRatio = 16 / 9;
@@ -2902,6 +2968,11 @@ function setupEventListeners() {
             if (type === 'overTime' && !OverTimeChart.instance) {
                 OverTimeChart.initialize();
                 window._syncChartAspect();
+            }
+            if (type === 'comparison') {
+                Chart.update();
+            } else if (type === 'overTime' && OverTimeChart.instance) {
+                OverTimeChart.update();
             }
         });
     });
@@ -3114,7 +3185,7 @@ function setupEventListeners() {
     Utils.getElement('coasterForm').addEventListener('submit', (e) => Forms.handleSubmit(e));
 
     Utils.getElement('tableRefreshBtn').addEventListener('click', () => {
-        AppState.sort = { column: null, direction: 'asc' };
+        AppState.sort = [];
         const defaults = {
             'Ride': true, 'Park': true, 'Manufacturer': true, 'Category': true,
             'Type': true, 'Opening Year': true, 'Last Ride': true, 'Status': true,
@@ -3514,6 +3585,12 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
 } else {
     init();
+}
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
 }
     </script>
 </body>

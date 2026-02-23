@@ -1,6 +1,53 @@
 # Changelog
 
-## Version 3.9 (Current) - 2026-02-19
+## Version 3.10 (Current) - 2026-02-22
+
+### Rating Chart Y-Axis Minimum
+- Comparison and Over Time charts in Rating mode now start at 1 instead of 0
+- Applies to chart initialization, dynamic updates, and both Over Time code paths
+- `beginAtZero` set to `false` for all Rating chart contexts
+
+### Multi-Sort Table (Up to 3 Columns)
+- Clicking a column header adds it to a sort stack (up to 3 active sorts)
+- Clicking an already-sorted column toggles its direction (asc ↔ desc)
+- Adding a 4th sort evicts the oldest sort (FIFO)
+- Most recently clicked column is the primary sort; earlier sorts act as tiebreakers
+- Priority badges (superscript ¹²³) appear on sorted headers when 2+ sorts are active
+- Single-sort behavior unchanged (no badge shown)
+
+### Bug Fix: Refresh Button with Multi-Sort
+- Refresh button now resets `AppState.sort` to `[]` instead of the old single-sort object format
+- Previously caused errors when multi-sort was active
+
+### Ranking Sort: Empty Values Last
+- Sorting by Ranking or Weighted Ranking now pushes empty/unranked coasters to the bottom
+- Applies in both ascending and descending directions
+- Ranked coasters (1–N) sort normally among themselves
+
+### Comparison Chart: Wrapped X-Axis Labels
+- Long coaster names now wrap across multiple lines instead of truncating with "..."
+- Word-boundary wrapping at 20-character line limit
+- Uses Chart.js native array label rendering
+- Tooltips still display full ride names
+
+### Comparison Chart Export: Reduced X-Axis Font
+- X-axis label font size reduced by 2 base points on export (11pt → 22px at 2× scale)
+- Over Time chart export font sizes unchanged
+
+### Over Time Chart: Default Toggle Flipped
+- "Ride / Filters" toggle now defaults to "Filters" instead of "Ride"
+- Filters panel shown on load; Ride search panel hidden
+
+### Deployment Updates
+- Updated PWA icons (icon-192.png, icon-512.png) with new coaster silhouette design
+- Added service worker (sw.js) for offline caching support
+- Service worker registration added to index.html
+- Updated manifest.json with corrected theme colors and maskable icon purpose
+- Added apple-touch-icon link
+
+---
+
+## Version 3.9 - 2026-02-19
 
 ### Font Size Refinements (Desktop & Mobile)
 - Card exterior: title 23px, park 20px, ranking badge 20px, detail rows 17px, rating number 22px, status badge 13px
@@ -35,6 +82,12 @@
 - Root cause: `applyToCoasterBase()` mutated `coasterBase` on load, so subsequent `save()` compared current values against already-mutated base and found no difference
 - Fix: `snapshotBase()` captures original base field values before any overrides are applied; `save()` compares against the snapshot instead of the mutated `coasterBase`
 - Affects all non-EDITABLE_FIELDS overrides: Status, Last Ride, Type, Opening Year
+
+### Bug Fix: Stats Charts Not Reflecting Ranking Changes
+- Tab switch to Stats now resizes and updates both Comparison and Over Time charts
+- Chart sub-tab toggles (Comparison ↔ Over Time) now trigger chart refreshes
+- `recalculateWeightedRankings()` moved before chart updates in edit flow
+- Fixes stale ranking data appearing in charts after editing in Credits tab
 
 ---
 

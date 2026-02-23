@@ -7,8 +7,9 @@
 1. Create a new public repository on GitHub (e.g., `coaster-tracker`)
 2. Clone the repo locally or upload files via the GitHub web interface
 3. Ensure the following files are in the repo root:
-   - `index.html` — Main application (single-file app, ~360KB)
+   - `index.html` — Main application (single-file app, ~370KB)
    - `manifest.json` — PWA manifest for home screen install
+   - `sw.js` — Service worker for offline caching
    - `icon-192.png` — App icon (192×192)
    - `icon-512.png` — App icon (512×512)
    - `.nojekyll` — Prevents Jekyll processing on GitHub Pages
@@ -21,8 +22,9 @@
 ### Updating the App
 
 1. Replace `index.html` with the updated version
-2. Commit and push to `main`
-3. GitHub Pages will automatically redeploy (typically within 1-2 minutes)
+2. If updating the service worker, bump the `CACHE_NAME` version string in `sw.js` (e.g., `coaster-tracker-v2`) to force a cache refresh
+3. Commit and push to `main`
+4. GitHub Pages will automatically redeploy (typically within 1-2 minutes)
 
 ### Syncing Data Across Machines
 
@@ -54,11 +56,12 @@ Note: The export captures all user modifications against the base data. The base
 - User data (custom coasters, ratings, rankings) is stored in `localStorage`
 - Chart rendering uses Chart.js (loaded from CDN)
 - PNG export uses html2canvas (loaded from CDN)
-- The app works fully offline once cached by the browser
+- Service worker caches core assets for offline use (stale-while-revalidate strategy)
+- The app works fully offline once cached by the browser/service worker
 
 ### File Size Considerations
 
-The HTML file is ~360KB due to embedded coaster data arrays. On some mobile browsers (especially Samsung Internet), this can occasionally cause the page to open blank on first attempt. The app includes deferred script execution to mitigate this — a retry typically loads successfully.
+The HTML file is ~370KB due to embedded coaster data arrays. On some mobile browsers (especially Samsung Internet), this can occasionally cause the page to open blank on first attempt. The app includes deferred script execution to mitigate this — a retry typically loads successfully.
 
 ### Browser Compatibility
 

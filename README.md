@@ -10,10 +10,10 @@ A detailed roller coaster credit tracking app with stats, charts, and PNG export
 - Customizable legend colors on Over Time Filters chart
 - Pixel-perfect PNG chart export (identical on mobile & desktop)
 - Dark/light theme support
-- Sortable spreadsheet table view
+- Multi-sort spreadsheet table view (up to 3 columns)
 - Add custom coasters with full persistence
 - Export/import data for syncing across machines
-- PWA-ready with mobile-optimized UI
+- PWA-ready with offline support and mobile-optimized UI
 - All data stored locally in the browser
 
 ## Deployment
@@ -26,4 +26,4 @@ See [CHANGELOG.md](CHANGELOG.md) for full version history.
 
 ## Current Version
 
-v3.8
+v3.10
