@@ -1,6 +1,25 @@
 # Changelog
 
-## Version 3.11 (Current) - 2026-02-23
+## Version 3.12 (Current) - 2026-02-23
+
+### Bug Fix: Data Corruption on Add Credit
+- Fixed three root causes of data corruption when adding new credits:
+  1. `syncAllToYearData()` was syncing all fields after ranking cascades — replaced with `syncRankingsToYearData()` which only syncs Rankings
+  2. `Persistence.applyToCoasterBase()` was incorrectly called on every submit — now only runs during init/year-switch
+  3. `Persistence.save()` was creating false overrides for user-added rides — added guard to skip user-added rides in overrides loop
+- Users should clear `coasterOverrides2026` from localStorage to purge any previously corrupted overrides
+
+### Data Fix: Racer at Kennywood Category
+- Changed "Racer" at Kennywood from "Woodie" category to "Wooden Coaster"
+- Removed unused "Woodie" category from category list
+
+### Card Layout: Manufacturer Row Alignment
+- Single-line manufacturer values now vertically align with two-line manufacturer values on credit cards
+- Applied consistent min-height to manufacturer row for uniform card appearance
+
+---
+
+## Version 3.11 - 2026-02-22
 
 ### Rating Chart Y-Axis Minimum
 - Comparison and Over Time charts in Rating mode now start at 1 instead of 0
