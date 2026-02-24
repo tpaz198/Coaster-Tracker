@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 3.10 (Current) - 2026-02-22
+## Version 3.11 (Current) - 2026-02-23
 
 ### Rating Chart Y-Axis Minimum
 - Comparison and Over Time charts in Rating mode now start at 1 instead of 0
