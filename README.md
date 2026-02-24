@@ -26,4 +26,4 @@ See [CHANGELOG.md](CHANGELOG.md) for full version history.
 
 ## Current Version
 
-v3.12
+v3.13

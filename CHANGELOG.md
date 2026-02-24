@@ -1,6 +1,39 @@
 # Changelog
 
-## Version 3.12 (Current) - 2026-02-23
+## Version 3.13 (Current) - 2026-02-24
+
+### Bug Fix: Delete Collision on Duplicate Ride Names
+- Deleting a ride removed ALL rides sharing that name across all parks (e.g., deleting "Batman The Ride" at Six Flags Great Adventure also deleted "Batman The Ride" at Six Flags Magic Mountain)
+- Root cause: `saveDeleted()` stored only ride name; `filterDeleted()` matched on ride name alone
+- Fix: Delete system now uses composite `Ride|||Park` keys for both storage and filtering
+- 14 duplicate ride names affecting 29 entries are now safe to delete individually
+- Backward compatible: old name-only localStorage entries harmlessly fail to match, causing deleted rides to reappear (user can re-delete to store the correct composite key)
+
+### Bug Fix: Deleted Rides Leaking into Over Time Charts
+- `filterDeleted()` only removed rides from `AppState.coasters`, not from `YearData.datasets`
+- Deleted rides still appeared in Over Time chart top-N candidates, individual ride data, and yearly averages
+- Deleted rides were also searchable and selectable in the Over Time ride search
+- Fix: Added `Persistence.getDeletedIndices()` helper that maps deleted `Ride|||Park` keys to base indices
+- `getFilteredTopRides()`, `getRideDataByIndex()`, `getYearlyAverages()`, and ride search dropdown now all filter by deleted index set
+
+### Bug Fix: 2026 Overrides Bleeding into Past Year Views
+- `applyToCoasterBase()` mutated the shared `coasterBase` array with 2026 user edits (Status, Last Ride, Type, Opening Year)
+- `mergeWithBase()` spread from the same mutated `coasterBase`, so switching to any past year showed 2026 values for overridden fields
+- Fix: `mergeWithBase(yearEntries)` → `mergeWithBase(yearEntries, year)` — now year-aware
+- For non-2026 years, restores the four mutable base fields from `Persistence._originalBase` snapshot
+- 2026 behavior unchanged; past year views now always reflect original compiled data
+
+### Data Fix: Truncated Last Ride Fields
+- Thunderbolt @ Kennywood: `lr:"204"` → `lr:"2024"`
+- Cedar Creek Mine Ride @ Cedar Point: `lr:"204"` → `lr:"2024"`
+
+### Data Fix: Category Whitespace
+- Trimmed trailing space from Wing Coaster category (`"Wing Coaster "` → `"Wing Coaster"`)
+- Affected Gatekeeper @ Cedar Point
+
+---
+
+## Version 3.12 - 2026-02-23
 
 ### Bug Fix: Data Corruption on Add Credit
 - Fixed three root causes of data corruption when adding new credits:
